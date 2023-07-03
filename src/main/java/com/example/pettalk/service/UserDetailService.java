@@ -10,13 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserDetailService implements UserDetailsService {
+public class UserDetailService {
 
 	private final UserRepository userRepository;
-
-	@Override
-	public UserDetails loadUserByUsername(String userId) {
-		return userRepository.findByUserId(userId)
-				.orElseThrow(() -> new IllegalArgumentException((userId)));
-	}
 }
