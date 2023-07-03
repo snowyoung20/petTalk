@@ -14,6 +14,8 @@ public class PostController {
 
     private final PostService postService;
 
+    private String test;
+
     public PostController(PostService postService) {
         this.postService = postService;
     }
