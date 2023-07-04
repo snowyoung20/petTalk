@@ -31,7 +31,7 @@ public class JwtUtil {
     private String secretKey;
     private Key key; // Token을 만들 때 넣어줄 Key 값
 
-    private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.ES256;
+    private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
     @PostConstruct // 처음 객체가 생성 될 때 초기화하는 함수
     public void init() {

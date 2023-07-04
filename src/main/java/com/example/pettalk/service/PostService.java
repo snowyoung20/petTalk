@@ -119,7 +119,7 @@ public class PostService {
     public User checkToken(HttpServletRequest request){
 
         //클라이언트의 요청에서 JWT 토큰 획득
-        String token = jwtUtil.resolveToken(request);
+        String token = jwtUtil.getJwtFromHeader(request);
         Claims claims;
 
         // 추출된 토큰이 NULL인지 확인 후 토큰 유효성 검사 실행
