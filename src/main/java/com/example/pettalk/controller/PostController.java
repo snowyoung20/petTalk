@@ -29,8 +29,6 @@ public class PostController {
         return postService.getPost();
     }
 
-
-
     // 게시글 조회
     @GetMapping("/{id}")
     public PostResponseDto getPost(@PathVariable Long id){
