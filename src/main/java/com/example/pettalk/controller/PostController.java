@@ -56,8 +56,4 @@ public class PostController {
     public StatusResult deletePost(@PathVariable Long id, HttpServletRequest request){
         return postService.deletePost(id, request);
     }
-
-
-
-
 }

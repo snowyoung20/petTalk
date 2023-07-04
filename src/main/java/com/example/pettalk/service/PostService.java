@@ -45,7 +45,6 @@ public class PostService {
         return new PostResponseDto(post);
     }
 
-
     // 게시글 작성
     @Transactional
     public PostResponseDto createPost(PostRequestDto requestDto, HttpServletRequest request) {
@@ -65,9 +64,6 @@ public class PostService {
         // ResponseDto 형식으로 변환후 리턴
         return new PostResponseDto(post);
     }
-
-
-
 
     // 게시글 수정
     @Transactional
@@ -93,8 +89,6 @@ public class PostService {
 
         return new PostResponseDto(post);
     }
-
-
 
     // 게시글 삭제
     @Transactional
@@ -122,15 +116,11 @@ public class PostService {
 
     }
 
-
-
-
-
     // JWT 토큰체크
     public User checkToken(HttpServletRequest request){
 
         //클라이언트의 요청에서 JWT 토큰 획득
-        String token = jwtUtil.resolveToken(request);
+        String token = jwtUtil.getJwtFromHeader(request);
         Claims claims;
 
         // 추출된 토큰이 NULL인지 확인 후 토큰 유효성 검사 실행
@@ -144,15 +134,12 @@ public class PostService {
                 throw new IllegalArgumentException("Token Error");
             }
 
-            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
+//             토큰에서 가져온 사용자 정보를 사용하여 DB 조회
             User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
                     () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
             );
             return user;
         }
         return null;
-
     }
-
-
 }
