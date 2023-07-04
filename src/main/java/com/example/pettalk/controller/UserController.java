@@ -38,11 +38,11 @@ public class UserController {
 		return userService.signup(requestDto);
 	}
 
-	@ResponseBody
+/*	@ResponseBody
 	@PostMapping("/login")
 	public String login(@RequestBody UserRequestDto.LoginRequestDto loginRequestDto, HttpServletResponse response) {
 		return userService.login(loginRequestDto, response);
-	}
+	}*/
 
 //	@PatchMapping("/update/{userId}")
 //	public ResponseEntity<Objects> updateUser(@RequestHeader("Authorization") String accessToken,

@@ -46,7 +46,7 @@ public class UserService {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@Transactional(readOnly = true)
+/*	@Transactional(readOnly = true)
 	public String login(UserRequestDto.LoginRequestDto loginRequestDto, HttpServletResponse response) {
 		String username = loginRequestDto.getUserId();
 		String password = loginRequestDto.getPassword();
@@ -61,7 +61,7 @@ public class UserService {
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername()));
 
 		return "로그인 완료";
-	}
+	}*/
 
 //	@Transactional
 //	public void update(String userId, UserRequestDto.updateRequestDto requestDto) {

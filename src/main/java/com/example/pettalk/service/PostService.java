@@ -47,16 +47,16 @@ public class PostService {
 
     // 게시글 작성
     @Transactional
-    public PostResponseDto createPost(PostRequestDto requestDto, HttpServletRequest request) {
-        // 토큰검증
+    public PostResponseDto createPost(PostRequestDto requestDto, User user) {
+        /*// 토큰검증
         User user = checkToken(request);
 
         if (user == null) {
             throw new IllegalArgumentException("인증되지 않은 사용자입니다.");
         }
-
+*/
         // 전달받은 requestDto를 post객체에 넣어줌
-        Post post = new Post(requestDto);
+        Post post = new Post(requestDto, user);
 
         // DB에 저장
         postRepository.save(post);
