@@ -5,7 +5,11 @@ import com.example.pettalk.dto.UserRequestDto;
 import com.example.pettalk.entity.User;
 import com.example.pettalk.jwt.JwtUtil;
 import com.example.pettalk.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,13 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	public ResponseEntity<Objects> signup(UserRequestDto.SignupRequestDto requestDto) {
 		String userId = requestDto.getUserId();
@@ -70,4 +77,20 @@ public class UserService {
 		userRepository.save(updateUser);
 	}
 
+	public String logout(HttpServletRequest request, User user) {
+
+		String accessToken = jwtUtil.getJwtFromHeader(request);
+
+		if(!jwtUtil.validateToken(accessToken)){
+			throw new IllegalArgumentException("유효하지 않은 토큰입니다");
+		}
+
+		if(redisTemplate.opsForValue().get("RT:"+user.getUserId())!=null){
+			redisTemplate.delete("RT:"+user.getUserId());
+		}
+		Claims info = jwtUtil.getUserInfoFromToken(accessToken);
+		Long expiration = info.getExpiration().getTime();
+		redisTemplate.opsForValue().set(accessToken,"logout",expiration, TimeUnit.MICROSECONDS);
+		return "로그아웃 성공";
+	}
 }

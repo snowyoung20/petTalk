@@ -1,9 +1,11 @@
 package com.example.pettalk.controller;
 
 import com.example.pettalk.dto.StatusResult;
+import com.example.pettalk.dto.TokenDto;
 import com.example.pettalk.dto.UserRequestDto;
 import com.example.pettalk.security.UserDetailsImpl;
 import com.example.pettalk.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,11 @@ public class UserController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		return userService.signup(requestDto);
+	}
+
+	@PostMapping("/logout")
+	public ResponseEntity<StatusResult> logout(@AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletRequest request) {
+		return ResponseEntity.ok().body(new StatusResult(userService.logout(request, userDetails.getUser()), HttpStatus.OK.value()));
 	}
 
 	@PatchMapping("/update")
