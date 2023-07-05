@@ -51,7 +51,7 @@ public class UserController {
         return userService.view(userDetails);
     }
 
-    @PatchMapping("/profile/update")
+    @PatchMapping("/profile")
     public ResponseEntity<StatusResult> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                       @RequestBody UserRequestDto.updateRequestDto requestDto) {
 
