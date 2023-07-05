@@ -58,4 +58,29 @@ public class UserService {
 			throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 		}
 	}
+
+	@Transactional
+	public void update(String username, UserRequestDto.updateRequestDto requestDto) {
+		if (!requestDto.getNewPassword().equals(requestDto.getNewPasswordCheck())) {
+			throw new IllegalArgumentException("변경할 비밀번호가 일치하지 않습니다.");
+		}
+
+		String password = requestDto.getPassword();
+		String newPassword = passwordEncoder.encode(requestDto.getNewPassword());
+		requestDto.setNewPassword(newPassword);
+		String newDescription = requestDto.getDescription();
+
+		User updateUser = userRepository.findByUsername(username).orElseThrow(
+				() -> new IllegalArgumentException("등록된 사용자가 없습니다.")
+		);
+
+		if(!passwordEncoder.matches(password, updateUser.getPassword())) {
+			throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+		}
+
+		updateUser.setPassword(newPassword);
+		updateUser.setDescription(newDescription);
+
+		userRepository.save(updateUser);
+	}
 }

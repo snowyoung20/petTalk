@@ -1,8 +1,10 @@
 package com.example.pettalk.controller;
 
+import com.example.pettalk.dto.PostResponseDto;
 import com.example.pettalk.dto.StatusResult;
 import com.example.pettalk.dto.UserRequestDto;
 import com.example.pettalk.jwt.JwtUtil;
+import com.example.pettalk.security.UserDetailsImpl;
 import com.example.pettalk.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -10,12 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -53,5 +53,13 @@ public class UserController {
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(loginRequestDto.getUserId()));
 
 		return ResponseEntity.ok().body(new StatusResult("로그인 성공", HttpStatus.CREATED.value()));
+	}
+
+	@PatchMapping("/update")
+	public ResponseEntity<StatusResult> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
+	                                         @RequestBody UserRequestDto.updateRequestDto requestDto) {
+
+		userService.update(userDetails.getUsername(), requestDto);
+		return ResponseEntity.ok().body(new StatusResult("변경 성공", HttpStatus.CREATED.value()));
 	}
 }
