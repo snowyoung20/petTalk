@@ -3,6 +3,7 @@ package com.example.pettalk.controller;
 import com.example.pettalk.dto.StatusResult;
 import com.example.pettalk.dto.TokenDto;
 import com.example.pettalk.dto.UserRequestDto;
+import com.example.pettalk.dto.UserResponseDto;
 import com.example.pettalk.security.UserDetailsImpl;
 import com.example.pettalk.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,7 +46,12 @@ public class UserController {
         return ResponseEntity.ok().body(new StatusResult(userService.logout(request, userDetails.getUser()), HttpStatus.OK.value()));
     }
 
-    @PatchMapping("/update")
+    @GetMapping("/profile")
+    public UserResponseDto viewProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.view(userDetails);
+    }
+
+    @PatchMapping("/profile/update")
     public ResponseEntity<StatusResult> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                       @RequestBody UserRequestDto.updateRequestDto requestDto) {
 
