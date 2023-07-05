@@ -10,8 +10,6 @@ import com.example.pettalk.jwt.JwtUtil;
 import com.example.pettalk.repository.CommentRepository;
 import com.example.pettalk.repository.PostRepository;
 import com.example.pettalk.repository.UserRepository;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +28,7 @@ public class CommentService {
     @Transactional
     public CommentResponseDto createComment(Long postID,
                                             CommentRequestDto commentRequestDto,
-                                            HttpServletRequest httpServletRequest) {
-        User user = checkToken(httpServletRequest);
+                                            User user) {
 
         // 게시글 유무 판단
         Post post = postRepository.findById(postID).orElseThrow(
@@ -50,8 +47,8 @@ public class CommentService {
     @Transactional
     public CommentResponseDto updateComment(Long commentId,
                                             CommentRequestDto commentRequestDto,
-                                            HttpServletRequest httpServletRequest) {
-        User user = checkToken(httpServletRequest);
+                                            User user) {
+
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다.")
@@ -69,8 +66,7 @@ public class CommentService {
 
     // 댓글 삭제 API
     public StatusResult deleteComment(Long commentId,
-                                            HttpServletRequest httpServletRequest) {
-        User user = checkToken(httpServletRequest);
+                                      User user) {
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다.")
@@ -84,35 +80,5 @@ public class CommentService {
             return new StatusResult("작성자만 삭제가 가능합니다.", 400);
         }
     }
-
-
-    // 토큰검증
-    public User checkToken(HttpServletRequest request){
-
-        //클라이언트의 요청에서 JWT 토큰 획득
-        String token = jwtUtil.resolveToken(request);
-        Claims claims;
-
-        // 추출된 토큰이 NULL인지 확인 후 토큰 유효성 검사 실행
-        if(token != null){
-
-            // 유효성 검사 시작
-            if(jwtUtil.validateToken(token)){
-                claims = jwtUtil.getUserInfoFromToken(token);
-            } else {
-                // 토큰이 존재하지 않으면 Token Error라는 메시지를 출력하며 예외를 발생 시킴
-                throw new IllegalArgumentException("Token Error");
-            }
-
-            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
-            );
-            return user;
-        }
-        return null;
-
-    }
-
 
 }

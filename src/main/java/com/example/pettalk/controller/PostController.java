@@ -3,9 +3,11 @@ package com.example.pettalk.controller;
 import com.example.pettalk.dto.PostRequestDto;
 import com.example.pettalk.dto.PostResponseDto;
 import com.example.pettalk.dto.StatusResult;
+import com.example.pettalk.security.UserDetailsImpl;
 import com.example.pettalk.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,12 +26,10 @@ public class PostController {
 //        this.postService = postService;
 //    }
 
-    @GetMapping("/")
+    @GetMapping
     public List<PostResponseDto> getPost() {
         return postService.getPost();
     }
-
-
 
     // 게시글 조회
     @GetMapping("/{id}")
@@ -39,25 +39,21 @@ public class PostController {
 
     // 게시글 작성
     @PostMapping("/create")
-    public PostResponseDto createPost(@RequestBody PostRequestDto requestDto, HttpServletRequest request){
-        return postService.createPost(requestDto, request);
+    public PostResponseDto createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return postService.createPost(requestDto, userDetails.getUser());
     }
 
     // 게시글 수정
     @PutMapping("/{id}/update")
     public PostResponseDto updatePost(@PathVariable Long id,
                                       @RequestBody PostRequestDto requestDto,
-                                      HttpServletRequest request){
-        return postService.updatePost(id, requestDto, request);
+                                      @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return postService.updatePost(id, requestDto, userDetails.getUser());
     }
 
     // 게시글 삭제
     @DeleteMapping("/{id}/delete")
-    public StatusResult deletePost(@PathVariable Long id, HttpServletRequest request){
-        return postService.deletePost(id, request);
+    public StatusResult deletePost(@PathVariable Long id,  @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return postService.deletePost(id, userDetails.getUser());
     }
-
-
-
-
 }
