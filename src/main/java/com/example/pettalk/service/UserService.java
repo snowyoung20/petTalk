@@ -2,9 +2,11 @@ package com.example.pettalk.service;
 
 
 import com.example.pettalk.dto.UserRequestDto;
+import com.example.pettalk.dto.UserResponseDto;
 import com.example.pettalk.entity.User;
 import com.example.pettalk.jwt.JwtUtil;
 import com.example.pettalk.repository.UserRepository;
+import com.example.pettalk.security.UserDetailsImpl;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -92,5 +94,13 @@ public class UserService {
 		Long expiration = info.getExpiration().getTime();
 		redisTemplate.opsForValue().set(accessToken,"logout",expiration, TimeUnit.MICROSECONDS);
 		return "로그아웃 성공";
+	}
+
+	public UserResponseDto view(UserDetailsImpl userDetails) {
+		User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(
+				() -> new IllegalArgumentException("올바르지 않은 회원정보 입니다.")
+		);
+
+		return new UserResponseDto(user.getUserId(), user.getUsername(), user.getDescription());
 	}
 }
