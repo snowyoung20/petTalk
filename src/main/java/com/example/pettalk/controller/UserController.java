@@ -1,15 +1,15 @@
 package com.example.pettalk.controller;
 
+import com.example.pettalk.dto.StatusResult;
 import com.example.pettalk.dto.UserRequestDto;
-import com.example.pettalk.dto.UserResponseDto;
-import com.example.pettalk.entity.User;
+import com.example.pettalk.security.UserDetailsImpl;
 import com.example.pettalk.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -38,16 +38,11 @@ public class UserController {
 		return userService.signup(requestDto);
 	}
 
-/*	@ResponseBody
-	@PostMapping("/login")
-	public String login(@RequestBody UserRequestDto.LoginRequestDto loginRequestDto, HttpServletResponse response) {
-		return userService.login(loginRequestDto, response);
-	}*/
+	@PatchMapping("/update")
+	public ResponseEntity<StatusResult> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
+	                                                  @RequestBody UserRequestDto.updateRequestDto requestDto) {
 
-//	@PatchMapping("/update/{userId}")
-//	public ResponseEntity<Objects> updateUser(@RequestHeader("Authorization") String accessToken,
-//	                                          @RequestBody UserRequestDto.updateRequestDto requestDto) {
-//		userService.update(accessToken, requestDto);
-//		return ApiResponse.createSuccessWithNoContent(ResponseCode.USER_MODIFY_PASSWORD_SUCCESS);
-//	}
+		userService.update(userDetails.getUsername(), requestDto);
+		return ResponseEntity.ok().body(new StatusResult("변경 성공", HttpStatus.CREATED.value()));
+	}
 }

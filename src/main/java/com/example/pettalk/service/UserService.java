@@ -5,7 +5,6 @@ import com.example.pettalk.dto.UserRequestDto;
 import com.example.pettalk.entity.User;
 import com.example.pettalk.jwt.JwtUtil;
 import com.example.pettalk.repository.UserRepository;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,26 +45,29 @@ public class UserService {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-/*	@Transactional(readOnly = true)
-	public String login(UserRequestDto.LoginRequestDto loginRequestDto, HttpServletResponse response) {
-		String username = loginRequestDto.getUserId();
-		String password = loginRequestDto.getPassword();
+	@Transactional
+	public void update(String username, UserRequestDto.updateRequestDto requestDto) {
+		if (!requestDto.getNewPassword().equals(requestDto.getNewPasswordCheck())) {
+			throw new IllegalArgumentException("변경할 비밀번호가 일치하지 않습니다.");
+		}
 
-		User user = userRepository.findByUsername(username).orElseThrow(
-				() -> new IllegalArgumentException("없는 사용자 입니다.")
+		String password = requestDto.getPassword();
+		String newPassword = passwordEncoder.encode(requestDto.getNewPassword());
+		requestDto.setNewPassword(newPassword);
+		String newDescription = requestDto.getDescription();
+
+		User updateUser = userRepository.findByUsername(username).orElseThrow(
+				() -> new IllegalArgumentException("등록된 사용자가 없습니다.")
 		);
 
-		if (!user.getPassword().equals(password)) {
-			throw new IllegalArgumentException("비밀번호가 맞지 않습니다.");
+		if(!passwordEncoder.matches(password, updateUser.getPassword())) {
+			throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 		}
-		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername()));
 
-		return "로그인 완료";
-	}*/
+		updateUser.setPassword(newPassword);
+		updateUser.setDescription(newDescription);
 
-//	@Transactional
-//	public void update(String userId, UserRequestDto.updateRequestDto requestDto) {
-//		Optional<User> updateUser = userRepository.findByUserId(userId);
-//		User user = userRepository.findOne(userId);
-//	}
+		userRepository.save(updateUser);
+	}
+
 }
