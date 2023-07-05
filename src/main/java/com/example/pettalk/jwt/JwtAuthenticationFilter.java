@@ -1,5 +1,6 @@
 package com.example.pettalk.jwt;
 
+import com.example.pettalk.dto.TokenDto;
 import com.example.pettalk.dto.UserRequestDto;
 import com.example.pettalk.security.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +8,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -17,9 +19,11 @@ import java.io.IOException;
 @Slf4j(topic = "로그인 및 JWT 생성")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisTemplate<String, String> redisTemplate) {
         this.jwtUtil = jwtUtil;
+        this.redisTemplate = redisTemplate;
         setFilterProcessesUrl("/user/login");
     }
 
@@ -45,7 +49,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
         String userId = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
 
-        String token = jwtUtil.createToken(userId);
+        TokenDto tokenDto = jwtUtil.createToken(userId);
+        String token = tokenDto.getAccessToken();
+        log.info("token : " + token);
+        log.info("refresh token : " + token);
+        redisTemplate.opsForValue().set("RT:"+userId, tokenDto.getRefreshToken());
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
     }
 

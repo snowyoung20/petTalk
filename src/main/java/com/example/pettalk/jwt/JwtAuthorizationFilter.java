@@ -7,11 +7,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,10 +24,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
+
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, RedisTemplate<String, String> redisTemplate) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -39,14 +44,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 log.error("Token Error");
                 return;
             }
+            // Redis에 해당 accessToken logout 여부를 확인
+            String isLogout = (String) redisTemplate.opsForValue().get(tokenValue);
 
-            Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
+            if(ObjectUtils.isEmpty(isLogout)){
 
-            try {
-                setAuthentication(info.getSubject());
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                return;
+                Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
+
+                try {
+                    setAuthentication(info.getSubject());
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                    return;
+                }
             }
         }
 
