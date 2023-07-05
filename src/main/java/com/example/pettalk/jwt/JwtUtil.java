@@ -1,5 +1,6 @@
 package com.example.pettalk.jwt;
 
+import com.example.pettalk.dto.TokenDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -7,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -32,6 +34,7 @@ public class JwtUtil {
     private Key key; // Token을 만들 때 넣어줄 Key 값
 
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+    private final RedisUtil redisUtil;
 
     @PostConstruct // 처음 객체가 생성 될 때 초기화하는 함수
     public void init() {
@@ -49,22 +52,33 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    public String createToken(String username) {
+    public TokenDto createToken(String username) {
         Date date = new Date();
-
-        return BEARER_PREFIX +
+        String accessToken = BEARER_PREFIX +
                 Jwts.builder()
                         .setSubject(username) // 공간에 username을 넣음
                         .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 토큰을 언제까지 유효하게 할 것인지 getTime으로 현재 시간을 가지고 오며 현재 시간으로부터 우리가 설정한 시간동안 토큰 유효
                         .setIssuedAt(date) // 토큰이 언제 만들어졌는가
                         .signWith(key, signatureAlgorithm) // 어떤 알고리즘을 사용하여 암호화 할 것인가
                         .compact(); // String 형식의 JWT 토큰으로 반환 됨
+        String refreshToken = BEARER_PREFIX +
+                Jwts.builder()
+                        .setSubject(username) // 공간에 username을 넣음
+                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 토큰을 언제까지 유효하게 할 것인지 getTime으로 현재 시간을 가지고 오며 현재 시간으로부터 우리가 설정한 시간동안 토큰 유효
+                        .setIssuedAt(date) // 토큰이 언제 만들어졌는가
+                        .signWith(key, signatureAlgorithm) // 어떤 알고리즘을 사용하여 암호화 할 것인가
+                        .compact(); // String 형식의 JWT 토큰으로 반환 됨
+        TokenDto tokenDto = new TokenDto(accessToken, refreshToken);
+        return tokenDto;
     }
 
     // 토큰 검증
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            if(redisUtil.hasKeyBlackList(token)){
+                throw new RuntimeException("로그아웃 되었습니다. 다시 로그인해주세요.");
+            }
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
