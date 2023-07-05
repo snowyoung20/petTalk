@@ -97,7 +97,7 @@ public class UserService {
     }
 
     public UserResponseDto view(UserDetailsImpl userDetails) {
-        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow(
+        User user = userRepository.findByUsername(userDetails.getUser().getUsername()).orElseThrow(
                 () -> new IllegalArgumentException("올바르지 않은 회원정보 입니다.")
         );
 

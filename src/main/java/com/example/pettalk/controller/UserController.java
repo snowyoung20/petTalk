@@ -55,7 +55,7 @@ public class UserController {
     public ResponseEntity<StatusResult> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                       @RequestBody UserRequestDto.updateRequestDto requestDto) {
 
-        userService.update(userDetails.getUsername(), requestDto);
+        userService.update(userDetails.getUser().getUsername(), requestDto);
         return ResponseEntity.ok().body(new StatusResult("변경 성공", HttpStatus.CREATED.value()));
     }
 }
