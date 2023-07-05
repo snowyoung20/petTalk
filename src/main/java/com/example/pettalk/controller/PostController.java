@@ -7,6 +7,7 @@ import com.example.pettalk.security.UserDetailsImpl;
 import com.example.pettalk.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,11 +22,6 @@ public class PostController {
 
     private String test;
 
-
-//    public PostController(PostService postService) {
-//        this.postService = postService;
-//    }
-
     @GetMapping("/")
     public List<PostResponseDto> getPost() {
         return postService.getPost();
@@ -38,10 +34,17 @@ public class PostController {
     }
 
     // 게시글 작성
-    @PostMapping("/create")
-    public PostResponseDto createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return postService.createPost(requestDto, userDetails.getUser());
-    }
+//    @PostMapping("/create")
+//    public PostResponseDto createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+//        return postService.createPost(requestDto, userDetails.getUser());
+//    }
+
+	@PostMapping("/create")
+	public ResponseEntity<PostResponseDto> createPost(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody PostRequestDto requestDto) {
+		PostResponseDto result = postService.createPost(requestDto, userDetails.getUser());
+
+		return ResponseEntity.status(201).body(result);
+	}
 
     // 게시글 수정
     @PutMapping("/{id}/update")

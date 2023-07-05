@@ -46,26 +46,16 @@ public class UserService {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-/*	@Transactional(readOnly = true)
-	public String login(UserRequestDto.LoginRequestDto loginRequestDto, HttpServletResponse response) {
-		String username = loginRequestDto.getUserId();
-		String password = loginRequestDto.getPassword();
+	public void login(UserRequestDto.LoginRequestDto requestDto) {
+		String userId = requestDto.getUserId();
+		String password = requestDto.getPassword();
 
-		User user = userRepository.findByUsername(username).orElseThrow(
-				() -> new IllegalArgumentException("없는 사용자 입니다.")
+		User user = userRepository.findByUsername(userId).orElseThrow(
+				() -> new IllegalArgumentException("등록된 사용자가 없습니다.")
 		);
 
-		if (!user.getPassword().equals(password)) {
-			throw new IllegalArgumentException("비밀번호가 맞지 않습니다.");
+		if(!passwordEncoder.matches(password, user.getPassword())) {
+			throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 		}
-		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername()));
-
-		return "로그인 완료";
-	}*/
-
-//	@Transactional
-//	public void update(String userId, UserRequestDto.updateRequestDto requestDto) {
-//		Optional<User> updateUser = userRepository.findByUserId(userId);
-//		User user = userRepository.findOne(userId);
-//	}
+	}
 }

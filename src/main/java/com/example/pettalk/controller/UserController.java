@@ -1,8 +1,8 @@
 package com.example.pettalk.controller;
 
+import com.example.pettalk.dto.StatusResult;
 import com.example.pettalk.dto.UserRequestDto;
-import com.example.pettalk.dto.UserResponseDto;
-import com.example.pettalk.entity.User;
+import com.example.pettalk.jwt.JwtUtil;
 import com.example.pettalk.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -12,7 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,6 +26,7 @@ import java.util.Objects;
 @RequestMapping("/user")
 public class UserController {
 	private final UserService userService;
+	private final JwtUtil jwtUtil;
 
 	@PostMapping("/signup")
 	public ResponseEntity<Objects> signUp(@RequestBody @Valid UserRequestDto.SignupRequestDto requestDto, BindingResult bindingResult) {
@@ -38,16 +42,16 @@ public class UserController {
 		return userService.signup(requestDto);
 	}
 
-/*	@ResponseBody
 	@PostMapping("/login")
-	public String login(@RequestBody UserRequestDto.LoginRequestDto loginRequestDto, HttpServletResponse response) {
-		return userService.login(loginRequestDto, response);
-	}*/
+	public ResponseEntity<StatusResult> login(@RequestBody UserRequestDto.LoginRequestDto loginRequestDto, HttpServletResponse response) {
+		try {
+			userService.login(loginRequestDto);
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(new StatusResult("회원을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST.value()));
+		}
 
-//	@PatchMapping("/update/{userId}")
-//	public ResponseEntity<Objects> updateUser(@RequestHeader("Authorization") String accessToken,
-//	                                          @RequestBody UserRequestDto.updateRequestDto requestDto) {
-//		userService.update(accessToken, requestDto);
-//		return ApiResponse.createSuccessWithNoContent(ResponseCode.USER_MODIFY_PASSWORD_SUCCESS);
-//	}
+		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(loginRequestDto.getUserId()));
+
+		return ResponseEntity.ok().body(new StatusResult("로그인 성공", HttpStatus.CREATED.value()));
+	}
 }
