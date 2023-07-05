@@ -48,13 +48,7 @@ public class PostService {
     // 게시글 작성
     @Transactional
     public PostResponseDto createPost(PostRequestDto requestDto, User user) {
-        /*// 토큰검증
-        User user = checkToken(request);
 
-        if (user == null) {
-            throw new IllegalArgumentException("인증되지 않은 사용자입니다.");
-        }
-*/
         // 전달받은 requestDto를 post객체에 넣어줌
         Post post = new Post(requestDto, user);
 
@@ -67,21 +61,15 @@ public class PostService {
 
     // 게시글 수정
     @Transactional
-    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, HttpServletRequest request) {
-        // 토큰 검증
-        User user = checkToken(request);
+    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
 
         Post post = postRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("해당 글이 존재하지 않습니다.")
         );
 
-        // 로그인한 사용자가 없는 사용자이면
-        if (user == null) {
-            throw new IllegalArgumentException("작성자만 수정이 가능합니다.");
-        }
 
         // 게시글의 작성자가 유저와 일치하면 게시글 내용을 수정한다.
-        if (post.getUser().equals(user)) {
+        if (post.getUser().getUsername().equals(user.getUsername())) {
             post.update(requestDto);
         } else {
             throw new IllegalArgumentException("작성자만 수정이 가능합니다.");
@@ -92,53 +80,22 @@ public class PostService {
 
     // 게시글 삭제
     @Transactional
-    public StatusResult deletePost(Long id, HttpServletRequest request) {
-        // 토큰 검증
-        User user = checkToken(request);
+    public StatusResult deletePost(Long id, User user) {
 
         Post post = postRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("해당 글이 존재하지 않습니다.")
         );
 
-        // 인증값이 존재하지 않을때
-        if (user == null) {
-            return new StatusResult("작성자만 삭제할 수 있습니다.",400);
-        }
 
         // 게시글의 작성자가 유저와 일치하면 게시글을 삭제한다.
-        if (post.getUser().equals(user)) {
+        if (post.getUser().getUsername().equals(user.getUsername())) {
             postRepository.delete(post);
         } else {
-            return new StatusResult("작성자만 삭제할 수 있습니다.",400);
+            throw new IllegalArgumentException("작성자만 삭제가 가능합니다.");
+            //return new StatusResult("작성자만 삭제할 수 있습니다.",400);
         }
 
         return new StatusResult("삭제 성공",200);
     }
 
-    // JWT 토큰체크
-    public User checkToken(HttpServletRequest request){
-
-        //클라이언트의 요청에서 JWT 토큰 획득
-        String token = jwtUtil.getJwtFromHeader(request);
-        Claims claims;
-
-        // 추출된 토큰이 NULL인지 확인 후 토큰 유효성 검사 실행
-        if(token != null){
-
-            // 유효성 검사 시작
-            if(jwtUtil.validateToken(token)){
-                claims = jwtUtil.getUserInfoFromToken(token);
-            } else {
-                // 토큰이 존재하지 않으면 Token Error라는 메시지를 출력하며 예외를 발생 시킴
-                throw new IllegalArgumentException("Token Error");
-            }
-
-            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
-            );
-            return user;
-        }
-        return null;
-    }
 }

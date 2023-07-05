@@ -26,7 +26,7 @@ public class PostController {
 //        this.postService = postService;
 //    }
 
-    @GetMapping("/")
+    @GetMapping
     public List<PostResponseDto> getPost() {
         return postService.getPost();
     }
@@ -47,13 +47,13 @@ public class PostController {
     @PutMapping("/{id}/update")
     public PostResponseDto updatePost(@PathVariable Long id,
                                       @RequestBody PostRequestDto requestDto,
-                                      HttpServletRequest request){
-        return postService.updatePost(id, requestDto, request);
+                                      @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return postService.updatePost(id, requestDto, userDetails.getUser());
     }
 
     // 게시글 삭제
     @DeleteMapping("/{id}/delete")
-    public StatusResult deletePost(@PathVariable Long id, HttpServletRequest request){
-        return postService.deletePost(id, request);
+    public StatusResult deletePost(@PathVariable Long id,  @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return postService.deletePost(id, userDetails.getUser());
     }
 }

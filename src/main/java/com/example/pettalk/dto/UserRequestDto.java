@@ -33,17 +33,17 @@ public class UserRequestDto {
         private String description;
     }
 
-	@Getter
-	@Setter
-	public static class updateRequestDto {
-		private String password;
+    @Getter
+    @Setter
+    public static class updateRequestDto {
+        private String password;
 
-		@Pattern(regexp = "^[A-Za-z0-9]{8,15}$")
-		private String newPassword;
+        @Pattern(regexp = "^[A-Za-z0-9]{8,15}$")
+        private String newPassword;
 
-		@Pattern(regexp = "^[A-Za-z0-9]{8,15}$")
-		private String newPasswordCheck;
+        @Pattern(regexp = "^[A-Za-z0-9]{8,15}$")
+        private String newPasswordCheck;
 
-		private String description;
-	}
+        private String description;
+    }
 }

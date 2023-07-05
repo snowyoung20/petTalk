@@ -55,19 +55,19 @@ public class JwtUtil {
     public TokenDto createToken(String username) {
         Date date = new Date();
         String accessToken = BEARER_PREFIX +
-                                Jwts.builder()
-                                        .setSubject(username) // 공간에 username을 넣음
-                                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 토큰을 언제까지 유효하게 할 것인지 getTime으로 현재 시간을 가지고 오며 현재 시간으로부터 우리가 설정한 시간동안 토큰 유효
-                                        .setIssuedAt(date) // 토큰이 언제 만들어졌는가
-                                        .signWith(key, signatureAlgorithm) // 어떤 알고리즘을 사용하여 암호화 할 것인가
-                                        .compact(); // String 형식의 JWT 토큰으로 반환 됨
+                Jwts.builder()
+                        .setSubject(username) // 공간에 username을 넣음
+                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 토큰을 언제까지 유효하게 할 것인지 getTime으로 현재 시간을 가지고 오며 현재 시간으로부터 우리가 설정한 시간동안 토큰 유효
+                        .setIssuedAt(date) // 토큰이 언제 만들어졌는가
+                        .signWith(key, signatureAlgorithm) // 어떤 알고리즘을 사용하여 암호화 할 것인가
+                        .compact(); // String 형식의 JWT 토큰으로 반환 됨
         String refreshToken = BEARER_PREFIX +
-                                Jwts.builder()
-                                        .setSubject(username) // 공간에 username을 넣음
-                                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 토큰을 언제까지 유효하게 할 것인지 getTime으로 현재 시간을 가지고 오며 현재 시간으로부터 우리가 설정한 시간동안 토큰 유효
-                                        .setIssuedAt(date) // 토큰이 언제 만들어졌는가
-                                        .signWith(key, signatureAlgorithm) // 어떤 알고리즘을 사용하여 암호화 할 것인가
-                                        .compact(); // String 형식의 JWT 토큰으로 반환 됨
+                Jwts.builder()
+                        .setSubject(username) // 공간에 username을 넣음
+                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 토큰을 언제까지 유효하게 할 것인지 getTime으로 현재 시간을 가지고 오며 현재 시간으로부터 우리가 설정한 시간동안 토큰 유효
+                        .setIssuedAt(date) // 토큰이 언제 만들어졌는가
+                        .signWith(key, signatureAlgorithm) // 어떤 알고리즘을 사용하여 암호화 할 것인가
+                        .compact(); // String 형식의 JWT 토큰으로 반환 됨
         TokenDto tokenDto = new TokenDto(accessToken, refreshToken);
         return tokenDto;
     }
