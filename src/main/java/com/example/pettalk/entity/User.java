@@ -1,5 +1,6 @@
 package com.example.pettalk.entity;
 
+import com.example.pettalk.dto.UserRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,5 +32,12 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public User(UserRequestDto.SignupRequestDto requestDto) {
+        this.userId = requestDto.getUserId();
+        this.username = requestDto.getUsername();
+        this.password = requestDto.getPassword();
+        this.description = requestDto.getDescription();
     }
 }
