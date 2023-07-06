@@ -18,7 +18,7 @@ public class CommentResponseDto {
     public CommentResponseDto(Comment comment){
         this.id = comment.getId(); // 받아온값을 주입
         this.comment = comment.getComment(); // 받아온값을 주입
-        this.username = comment.getComment(); // 받아온값을 주입
+        this.username = comment.getUser().getUsername(); // 받아온값을 주입
         this.createAt = comment.getCreatedAt(); // 받아온값을 주입
         this.modifiedAt = comment.getModifiedAt(); // 받아온값을 주입
     }
